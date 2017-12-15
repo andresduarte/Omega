@@ -1,0 +1,314 @@
+[meta title:"Calculus Notes" description:"Notes from Math 1B" /]
+
+[Header
+  title:"CS Notes"
+  subtitle:"I hope this works"
+  author:"Andres Duarte"
+  authorLink:"https://idyll-lang.github.io" /]
+
+I'm not sure if this is the right approach, but at this stage I don't think I have an alternative.
+
+[link text:"the text" href:"second.idl" /]
+
+[Aside]
+  ### Questions
+  What is a combination?
+
+  Are lambda expressions special forms?
+
+  Explain dotted lists, what is meant by 'last pair'?
+[/Aside]
+
+## Scheme Values
+
+### Atoms
+
+* Numbers
+* Booleans
+* Symbols
+* nil
+* Functions
+
+### Composites
+
+  * Pairs
+  * Lists
+  [Aside]
+    Lists are composed of pairs and nil
+  [/Aside]
+
+### Big Idea
+
+  * Numbers and nil represent literals
+  * Symbols represent variables
+  * Lists represent everything else
+
+## Scheme Expressions
+
+  Expressions can be:
+  * Primitive
+  * Combinations (call expressions + special forms ?)
+
+  Numbers are self evaluating; symbols are bound to values; call expressions include an operator and 0 or more operands
+
+## Special Forms
+
+  Combination that is not a call expression.
+  [Aside]
+    ### Evaluation
+    Evaluate the predicate expression
+    Evaluate either the consequent or alternative.
+  [/Aside]
+  * **if** expression: `(if <predicate> <consequent> <alternative>)`
+  * **and**, **or**: `(and <e1> .. <en>), (or <e1> .. <en>)`
+  * Binding symbols: `(define <symbol> <expression>)`
+  * New procedures: `(define (<symbol> <formal parameters>) <body>)`
+
+## Lambda Expressions
+
+  Lambda Expressions evaluate to anonymous procedures
+
+  ```scheme
+  (lambda (<formal-parameters>) <body>)
+  ```
+  Two equivalent expressions:
+  * `(define (plus 4 x) (+ x 4))`
+  * `(define plus4 (lambda (x) (+ x 4)))`
+
+  An operator can be a call expression too:
+
+  ```scheme
+  ((lambda (x y z) (+ x y (square z))) 1 2 3 )
+  ▷ 12
+  ```
+
+## Pairs and Lists
+
+  * **cons**: Two-argument procedure that creates a pair
+  * **car**: Procedure that returns the first element of a pair
+  * **cdr**: Procedure that returns the second element of a pair
+  * **nil**: The empty list
+  * A (non-empty) list is a pair in which the second element is nil or a list
+  * lists are written in parentheses separated by spaces
+  * A dotted list has some value for the second element of the last pair that is not a list.
+
+## Symbolic Programming
+
+  Symbols normally refer to values; To refer to symbols directly we use quotation
+
+```scheme
+> (list 'a 'b)
+(a b)
+> (list 'a b)
+(a 2)
+```
+  Quotation can also be applied to combinations to form lists.
+
+```scheme
+> (car '(a b c))
+a
+> (cdr '(a b c))
+(b c)
+```
+
+  Dots can be used in a quoted list to specify the second element of the final pair.
+
+```scheme
+> (cdr (cdr '(1 2 . 3)))
+3
+```
+
+However, dots appear in the output only of ill-formed lists
+
+```scheme
+> '(1 2 . 3)
+(1 2 . 3)
+> `(1 2 . (3 4))
+(1 2 3 4)
+```
+
+## Exceptions
+
+A built-in mechanism in a programming language to declare and respond to exceptional conditions
+
+Python raises an exception whenever an error occurs
+
+Exceptions can be handled by the program, preventing the interpreter from halting.
+
+Exceptions are objects
+
+They enable non-local continuations of control
+
+## Assert Statements
+
+Assert statements raise an exception of type `AssertionError`
+
+```python
+assert <expression>, <string>
+```
+
+## Raise Statements
+
+Exceptions are raised with a raise statement
+
+```python
+raise <expression>
+```
+
+`<expression>` must evaluate to a subclass of `BaseException` or an instance of one
+
+* **TypeError** -- A function was passed the wrong number/type of argument
+* **NameError** -- A name wasn't found
+* **KeyError** -- A key wasn't found in a dictionary
+* **RuntimeError** -- Catch-all for troubles during interpretation
+
+## Try Statements
+
+Try statements handle exceptions
+
+```python
+try:
+  <try suite>
+except <exception class> as <name>:
+  <except suite>
+...
+```
+#### Evaluation:
+The `<try suite>` is executed first
+
+If, during the course of evaluating the `<try suite>` an exception is raised that is not handled otherwise, and If the class of the exception inherits from `<exception class>`, then the `<except suite>` is execute, with `<name>` bound to the exception
+
+**Multiple try statements**:  Control jumps to the except suite of the most recent try statement that handles that type of exception
+
+## Programming Languages
+
+#### Machine Languages
+Statements are interpreted by the hardware itself
+
+* A fixed set of instructions invoke operations implemented by the circuitry of the central processing unit (CPU)
+* Operations refer to specific hardware memory addresses; no abstraction mechanisms
+
+
+#### Higher-Level Languages
+
+Statements & expressions are interpreted by another program or compiled (translated) into another language
+
+* Provide means of abstraction such as naming, function definition, and objects
+* Abstract away system details to be independent of hardware and operating system
+
+## Metalinguistic Abstraction
+
+A powerful form of abstraction is to define a new language that is tailored to a particular type of application or problem domain
+
+A programming Language has:
+* **Syntax**: the legal statements and expressions in the language
+* **Semantics**: The evaluation rule for those statements and expressions
+
+To create a new programming language, you either need a:
+* **Specification**: A document describing the precise syntax and semantics of the Language
+* **Canonical Implementation**: An interpreter or compiler for the language
+
+## Parsing
+
+A scheme list is written as elements in parentheses:
+
+```scheme
+(<element_0><element_1> .. <element_n>)
+```
+
+The task of parsing a language involves coercing a string representation of an expression to the expression itself
+
+#### Lexical Analysis
+* Iterative process
+* Checks for malformed tokens
+* Determines types of tokens
+* Processes one line at a time
+
+#### Syntactic Analysis
+* Tree-recursive process
+* Balances parentheses
+* Returns tree structure
+* Processes multiple lines
+
+
+Identifies the hirearchical structure of an expression, which may be nested
+
+Each call to `scheme_read` consumes the input tokens for exactly one expression
+
+**Base Case:** symbols and numbers
+
+**Recursive Call:** `scheme_read` sub-expressions and combine them
+
+**Scheme expressions are represented as Scheme lists. Source code is data**
+[Aside] I'm nowhere close to understanding the profundity of that statement [/Aside]
+
+## Read-Eval-Print Loop
+
+The user interface for many programming languages is an interactive interpreter
+
+1. Print a prompt
+2. **Read** text input from the user
+3. Parce the text input into an expression
+4. **Evaluate** the expression
+5. If any errors occur, report those errors, otherwise
+6. **Print** the value of the expression and repeat
+
+## Raising Exceptions
+
+Exceptions are raised within lexical analysis, syntactic analysis, eval, and apply
+
+* Lexical Analysis: The token 2.3.4 raises `ValueError("invalid numeral")`
+* Syntactic analysis: An extra ) raises `SyntaxError("unexpected token")`
+* Eval: An empty combination raises `TypeError("() is not a number or call expression")`
+* Apply: No arguments to - raises `TypeError("- requires at least 1 argument")`
+
+#### Handling Exceptions
+
+An interactive interpreter prints information about each error
+
+A well-designed interactive interpreter should not halt completely on an error, so that the user has an opportunity to try again in the current environment
+
+
+## HKN Review Session
+
+* Office Hours 290 Cory & 345 Soda
+
+## Structural Query Language (SQL)
+
+* Declarative Language
+
+#### Querries
+
+```SQL
+  SELECT [columns] FROM [tables] WHERE [condition] ORDER BY [attributes] LIMIT [limit];
+```
+By default SQL orders by ascending order
+
+#### Order of Operations
+
+1. FROM -- joins tables
+2. WHERE -- filters individual rows
+3. GROUP BY -- forms groups
+4. aggregations
+5. HAVING
+6. SELECT
+7. DISTINCT
+8. ORDER BY
+9. LIMIT
+
+
+## Tail Recursion
+
+* Use a helper function with additional arguments to *save the state*
+* Return state when you hit end (base case)
+
+## Iterators - Generators
+
+**iterable**
+* object that has an `__iter__` method which returns an **iterator**
+* object that can be iterated over using the `__next__` method
+* must implement both `__next__` and `__iter__`
+
+analogy: A book is an **iterable**; a bookmark is an **iterator**
+
+## Streams
